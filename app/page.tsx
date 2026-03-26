@@ -8,7 +8,8 @@ import type { YoutubePanelHandle } from "./components/YoutubePanel";
 import CameraPanel from "./components/CameraPanel";
 import CoachPanel from "./components/CoachPanel";
 import MoveQueue from "./components/MoveQueue";
-import { extractVideoId } from "./lib/youtube";
+import { parseVideoUrl } from "./lib/videoUrl";
+import type { VideoSource } from "./lib/videoUrl";
 import { extractStripPoses } from "./lib/videoPoseExtractor";
 import type { StripPoseTimeline } from "./lib/videoPoseExtractor";
 import { computeScore, buildPoseSummary } from "./lib/scoring";
@@ -60,6 +61,9 @@ import {
   getSessionStats,
 } from "./lib/sessionStats";
 import type { SessionStats } from "./lib/sessionStats";
+
+import PaywallModal from "./components/PaywallModal";
+import ShareScoreModal from "./components/ShareScoreModal";
 
 type ScoreType = "perfect" | "great" | "ok" | "almost" | "miss";
 
@@ -157,6 +161,11 @@ export default function Home() {
   const [pointsBumpSeq, setPointsBumpSeq] = useState(0);
   const [recordingUrl, setRecordingUrl] = useState<string | undefined>(undefined);
   const [recordingUploading, setRecordingUploading] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallDuration, setPaywallDuration] = useState<number | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [videoSource, setVideoSource] = useState<VideoSource | null>(null);
 
   const youtubePanelRef = useRef<YoutubePanelHandle>(null);
   const webcamCaptureRef = useRef<(() => string | null) | null>(null);
@@ -178,6 +187,14 @@ export default function Home() {
   const prevVideoTimeRef = useRef<number>(0); // Track previous video time to detect rewind
   const referencePoseRef = useRef<NormalizedLandmark[] | null>(null); // Current reference pose for overlay projection
   const streakRef = useRef(0);
+
+  // Read premium status from localStorage on mount
+  useEffect(() => {
+    try {
+      const val = localStorage.getItem("jw_premium");
+      if (val === "true") setIsPremium(true);
+    } catch { /* ignore */ }
+  }, []);
 
   // Auto-clear combo flash after 2s
   useEffect(() => {
@@ -204,15 +221,19 @@ export default function Home() {
   };
 
   const handleUrl = useCallback(async (url: string) => {
-    const id = extractVideoId(url);
-    if (!id) {
-      alert("Could not extract a YouTube video ID from that URL.");
+    const source = parseVideoUrl(url);
+    if (!source) {
+      alert("Could not parse that URL. Paste a YouTube, YouTube Shorts, or TikTok link.");
       return;
     }
+
+    const id = source.videoId;
 
     if (id === videoId && downloadStatus === "done") {
       return;
     }
+
+    setVideoSource(source);
 
     if (id !== videoId) {
       setPoseTimeline(null);
@@ -261,7 +282,7 @@ export default function Home() {
       const res = await fetch("/api/download", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ videoId: id }),
+        body: JSON.stringify({ videoId: id, videoUrl: source.videoUrl, isPremium }),
       });
 
       if (!res.ok || !res.body) {
@@ -298,8 +319,15 @@ export default function Home() {
               setModeOverlaySeq(s => s + 1);
               if (event.title) setVideoTitle(event.title);
             } else if (event.type === "error") {
-              setDownloadStatus("error");
-              setDownloadError(event.message);
+              if (event.code === "DURATION_LIMIT") {
+                setDownloadStatus("idle");
+                setDownloadError(null);
+                setPaywallDuration(event.duration ?? null);
+                setShowPaywall(true);
+              } else {
+                setDownloadStatus("error");
+                setDownloadError(event.message);
+              }
             }
           } catch {
             // ignore malformed SSE lines
@@ -310,7 +338,7 @@ export default function Home() {
       setDownloadStatus("error");
       setDownloadError(err instanceof Error ? err.message : "Network error");
     }
-  }, [videoId, downloadStatus]);
+  }, [videoId, downloadStatus, isPremium]);
 
   const handleGenerate = useCallback(async (prompt: string) => {
     // Reset state for new generation
@@ -962,7 +990,7 @@ export default function Home() {
               }`}
               style={{ fontFamily: "var(--font-audiowide)" }}
             >
-              YouTube URL
+              Video URL
             </button>
             <button
               onClick={() => setInputMode("generate")}
@@ -987,11 +1015,33 @@ export default function Home() {
           )}
         </div>
 
-        {/* Spacer to balance the title on the left */}
-        <div className="flex items-center gap-4 invisible">
-          <h1 className="text-xl tracking-[0.2em] uppercase">
-            {mode === "gym" ? "Iron Form" : "Jiggle Wiggle"}
-          </h1>
+        {/* Right: premium badge + share button */}
+        <div className="flex items-center gap-3">
+          {isPremium ? (
+            <span
+              className="text-[9px] tracking-[0.2em] uppercase px-2 py-1 border border-yellow-400/60 text-yellow-400/90 bg-yellow-400/10"
+              style={{ fontFamily: "var(--font-audiowide)" }}
+            >
+              Premium
+            </span>
+          ) : (
+            <button
+              onClick={() => setShowPaywall(true)}
+              className="text-[9px] tracking-[0.2em] uppercase px-2 py-1 border border-neon-cyan/30 text-neon-cyan/60 hover:text-neon-cyan hover:border-neon-cyan/60 transition-colors"
+              style={{ fontFamily: "var(--font-audiowide)" }}
+            >
+              Upgrade
+            </button>
+          )}
+          {score > 0 && (
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="text-[9px] tracking-[0.2em] uppercase px-2 py-1 border border-neon-violet/40 text-neon-violet/70 hover:text-neon-violet hover:border-neon-violet/70 transition-colors"
+              style={{ fontFamily: "var(--font-audiowide)" }}
+            >
+              Share Score
+            </button>
+          )}
         </div>
       </header>
 
@@ -1199,6 +1249,31 @@ export default function Home() {
           }}
         />
       )}
+
+      {/* Paywall modal */}
+      <PaywallModal
+        visible={showPaywall}
+        videoDuration={paywallDuration}
+        onClose={() => setShowPaywall(false)}
+        onUpgradeSuccess={() => {
+          setIsPremium(true);
+          try { localStorage.setItem("jw_premium", "true"); } catch { /* ignore */ }
+          setShowPaywall(false);
+        }}
+      />
+
+      {/* Share score modal */}
+      <ShareScoreModal
+        visible={showShareModal}
+        score={score}
+        totalPoints={totalPoints}
+        grade={
+          score >= 90 ? "S" : score >= 80 ? "A" : score >= 65 ? "B" : score >= 50 ? "C" : "D"
+        }
+        videoTitle={videoTitle}
+        mode={mode}
+        onClose={() => setShowShareModal(false)}
+      />
     </div>
   );
 }
