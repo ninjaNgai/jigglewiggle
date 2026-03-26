@@ -61,20 +61,20 @@ export default function ShareScoreModal({
     if (!previewUrl) return;
     const a = document.createElement("a");
     a.href = previewUrl;
-    a.download = `jigglewiggle-score-${score}.png`;
+    a.download = `mustdance-score-${score}.png`;
     a.click();
   };
 
   const handleNativeShare = async () => {
     if (!cardBlob) return;
-    const file = new File([cardBlob], `jigglewiggle-score-${score}.png`, { type: "image/png" });
-    const shareText = `I scored ${score} on Jiggle Wiggle${videoTitle ? ` dancing to "${videoTitle}"` : ""}! Can you beat me? 🕺`;
+    const file = new File([cardBlob], `mustdance-score-${score}.png`, { type: "image/png" });
+    const shareText = `I scored ${score} on Must Dance${videoTitle ? ` dancing to "${videoTitle}"` : ""}! Can you beat me? 🕺`;
     try {
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ title: "Jiggle Wiggle Score", text: shareText, files: [file] });
+        await navigator.share({ title: "Must Dance Score", text: shareText, files: [file] });
       } else {
         // Fallback: share without file (copy text)
-        await navigator.share({ title: "Jiggle Wiggle Score", text: shareText });
+        await navigator.share({ title: "Must Dance Score", text: shareText });
       }
     } catch (err) {
       // User cancelled or share failed — silently ignore
@@ -83,7 +83,7 @@ export default function ShareScoreModal({
   };
 
   const handleCopyText = async () => {
-    const text = `I scored ${score} on Jiggle Wiggle${videoTitle ? ` dancing to "${videoTitle}"` : ""}! Can you beat me? 🕺 jigglewiggle.app`;
+    const text = `I scored ${score} on Must Dance${videoTitle ? ` dancing to "${videoTitle}"` : ""}! Can you beat me? 🕺 mustdance.app`;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

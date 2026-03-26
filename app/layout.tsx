@@ -15,7 +15,7 @@ const chakraPetch = Chakra_Petch({
 });
 
 export const metadata: Metadata = {
-  title: "Jiggle Wiggle",
+  title: "Must Dance",
   description: "Learn dance moves from YouTube videos with real-time AI coaching",
 };
 

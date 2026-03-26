@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Jiggle Wiggle",
+  "name": "Must Dance",
   "version": "1.0.0",
-  "description": "Open any YouTube video in Jiggle Wiggle to learn dance moves with AI coaching",
+  "description": "Open any YouTube video in Must Dance to learn dance moves with AI coaching",
   "permissions": ["activeTab", "tabs"],
   "action": {
-    "default_title": "Jiggle Wiggle",
+    "default_title": "Must Dance",
     "default_icon": "icon.png"
   },
   "background": {

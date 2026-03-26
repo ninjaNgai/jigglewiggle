@@ -18,7 +18,7 @@ function App() {
   return (
     <div style={styles.app}>
       <header style={styles.header}>
-        <h1 style={styles.appTitle}>JiggleWiggle</h1>
+        <h1 style={styles.appTitle}>MustDance</h1>
       </header>
 
       <main style={styles.main}>

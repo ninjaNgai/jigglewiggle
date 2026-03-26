@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: jiggle-wiggle
+    name: must-dance
     runtime: docker
     region: oregon
     plan: standard

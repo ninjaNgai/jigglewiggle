@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-"Jiggle Wiggle" — a real-time AI dance coaching web app (TreeHacks 2026 hackathon). User pastes a YouTube URL, the video downloads server-side, plays in a custom player alongside a webcam feed with live pose detection, scoring, and AI coaching feedback.
+"Must Dance" — a real-time AI dance coaching web app (TreeHacks 2026 hackathon). User pastes a YouTube URL, the video downloads server-side, plays in a custom player alongside a webcam feed with live pose detection, scoring, and AI coaching feedback.
 
 ## Commands
 
@@ -24,7 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Data Flow
 
 ```
-YouTube URL → /api/download (SSE: progress → done → classified) → /tmp/jigglewiggle/{id}.mp4
+YouTube URL → /api/download (SSE: progress → done → classified) → /tmp/mustdance/{id}.mp4
   → classified event sets mode (gym/dance) → ModeOverlay flash (3s)
   → /api/video/[id] (serves MP4 with range requests)
   → Client: pose extraction (hidden video+canvas, MediaPipe, 10fps)
@@ -42,7 +42,7 @@ Webcam → MediaPipe Pose (CDN-loaded, on-device) → skeleton overlay + scoring
 - **`app/lib/scoring.ts`** — Choreography-agnostic scoring: movement energy (keypoint velocity), form heuristics (arm height, torso angle, symmetry). Exports `computeScore()` and `buildPoseSummary()`.
 - **`app/lib/coach.ts`** — Maintains conversation history (last 6 exchanges), throttles to one call per 3s. Sends pose summaries to `/api/coach`.
 - **`app/components/ModeOverlay.tsx`** — Full-screen flashy overlay announcing the detected mode ("BEAST MODE" / "LET'S GROOVE"). Triggered by a `seq` counter prop. Uses layered CSS animations: expanding ring bursts, horizontal streaks, diagonal flashes, slam-in text, and expanding-letter-spacing subtitle. Auto-hides after 3s, `pointer-events: none`.
-- **`app/api/download/route.ts`** — POST endpoint. Spawns yt-dlp, parses stdout for progress, streams SSE events (`progress`, `done`, `classified`, `error`). Caches to `/tmp/jigglewiggle/`.
+- **`app/api/download/route.ts`** — POST endpoint. Spawns yt-dlp, parses stdout for progress, streams SSE events (`progress`, `done`, `classified`, `error`). Caches to `/tmp/mustdance/`.
 - **`app/api/video/[id]/route.ts`** — GET endpoint. Serves MP4 with HTTP range request support. Uses `cancelled` flag pattern to prevent ERR_INVALID_STATE on stream cancellation.
 - **`app/api/coach/route.ts`** — POST endpoint. OpenAI chat completion with system prompt for dance coaching personality.
 
@@ -53,7 +53,7 @@ Webcam → MediaPipe Pose (CDN-loaded, on-device) → skeleton overlay + scoring
 - **forwardRef + useImperativeHandle:** `YoutubePanel` exposes `getCurrentTime()` so `page.tsx` can poll video position via rAF loop for MoveQueue sync.
 - **Stable callback ref:** `onPoseRef` pattern in `page.tsx` prevents CameraPanel remounts when scoring/coaching logic changes. The actual `handlePose` callback passed to CameraPanel has empty deps.
 - **MediaPipe loaded from CDN:** Not bundled — loaded dynamically via script injection in `pose.ts` to avoid large WASM in the Next.js bundle.
-- **Video ID validation:** Regex `^[a-zA-Z0-9_-]{11}$` in download route. Files stored at `/tmp/jigglewiggle/{videoId}.mp4`.
+- **Video ID validation:** Regex `^[a-zA-Z0-9_-]{11}$` in download route. Files stored at `/tmp/mustdance/{videoId}.mp4`.
 
 ### Chrome Extension
 

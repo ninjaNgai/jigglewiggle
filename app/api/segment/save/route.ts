@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
-const VIDEO_DIR = "/tmp/jigglewiggle";
+const VIDEO_DIR = "/tmp/mustdance";
 
 export async function POST(request: NextRequest) {
   const { videoId, url } = (await request.json()) as {

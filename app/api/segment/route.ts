@@ -4,8 +4,8 @@ import path from "path";
 
 export const maxDuration = 600; // 10 minutes
 
-const VIDEO_DIR = "/tmp/jigglewiggle";
-const MODAL_ENDPOINT_URL = "https://aryankeluskar--jigglewiggle-sam2-sam2model-segment.modal.run";
+const VIDEO_DIR = "/tmp/mustdance";
+const MODAL_ENDPOINT_URL = "https://aryankeluskar--mustdance-sam2-sam2model-segment.modal.run";
 
 function maskPath(videoId: string) {
   return path.join(VIDEO_DIR, `${videoId}_mask.mp4`);

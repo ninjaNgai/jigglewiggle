@@ -968,7 +968,7 @@ export default function Home() {
             className="text-xl tracking-[0.2em] uppercase neon-title animate-flicker"
             style={{ fontFamily: "var(--font-audiowide)" }}
           >
-            {mode === "gym" ? "Iron Form" : "Jiggle Wiggle"}
+            {mode === "gym" ? "Iron Form" : "Must Dance"}
           </h1>
           <div className="h-5 w-px bg-neon-cyan/20" />
           <span

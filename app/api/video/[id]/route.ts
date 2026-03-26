@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stat, open } from "fs/promises";
 import path from "path";
 
-const VIDEO_DIR = "/tmp/jigglewiggle";
+const VIDEO_DIR = "/tmp/mustdance";
 
 export async function GET(
   request: NextRequest,

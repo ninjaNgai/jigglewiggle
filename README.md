@@ -1,6 +1,6 @@
-# Jiggle Wiggle 💃
+# Must Dance 💃
 
-devpost: https://devpost.com/software/jiggle-wiggle
+devpost: https://devpost.com/software/must-dance
 
 **Real-time AI dance & fitness coaching from any YouTube video.**
 
@@ -90,7 +90,7 @@ The grade is computed from data. The headline, persona, roasts, and tips are gen
 ## Architecture
 
 ```
-YouTube URL → /api/download (yt-dlp, SSE progress) → /tmp/jigglewiggle/{id}.mp4
+YouTube URL → /api/download (yt-dlp, SSE progress) → /tmp/mustdance/{id}.mp4
   → auto-classification (dance/gym) → mode overlay
   → /api/video/[id] (serves MP4 with range requests)
   → pose extraction (hidden video + MediaPipe, key frames)

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       success_url: `${origin}/?premium=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/`,
       customer_email: body.email,
-      metadata: { app: "jigglewiggle" },
+      metadata: { app: "mustdance" },
     });
 
     return NextResponse.json({ url: session.url });

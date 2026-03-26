@@ -4,7 +4,7 @@ import { mkdir, access } from "fs/promises";
 import path from "path";
 import { classifyVideo } from "../../lib/classifyVideo";
 
-const VIDEO_DIR = "/tmp/jigglewiggle";
+const VIDEO_DIR = "/tmp/mustdance";
 
 /** Free-tier max duration in seconds. Premium users have no limit. */
 const FREE_TIER_MAX_SECONDS = 30;

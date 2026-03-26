@@ -76,7 +76,7 @@ export async function generateScoreCard(
   ctx.fillStyle = `${accentColor}80`; // semi-transparent
   ctx.font = "bold 28px monospace";
   ctx.letterSpacing = "8px";
-  ctx.fillText(mode === "gym" ? "IRON FORM" : "JIGGLE WIGGLE", SIZE / 2, 110);
+  ctx.fillText(mode === "gym" ? "IRON FORM" : "MUST DANCE", SIZE / 2, 110);
 
   // ── Grade badge ──────────────────────────────────────────────────────────
   const gradeColor = GRADE_COLORS[grade] ?? "#ffffff";
@@ -135,7 +135,7 @@ export async function generateScoreCard(
   ctx.fillStyle = `${accentColor}90`;
   ctx.font = "bold 24px monospace";
   ctx.letterSpacing = "3px";
-  ctx.fillText("jigglewiggle.app", CX, 960);
+  ctx.fillText("mustdance.app", CX, 960);
 
   ctx.fillStyle = "#ffffff30";
   ctx.font = "18px monospace";
